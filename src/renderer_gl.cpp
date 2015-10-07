@@ -2340,6 +2340,11 @@ namespace bgfx { namespace gl
 			BX_FREE(g_allocator, data);
 		}
 
+		void readBackTexture(TextureHandle _handle) BX_OVERRIDE
+		{
+			g_callback->readBack(_handle, 0, 0, 0, NULL, 0, false);
+		}
+
 		void updateViewName(uint8_t _id, const char* _name) BX_OVERRIDE
 		{
 			bx::strlcpy(&s_viewName[_id][BGFX_CONFIG_MAX_VIEW_NAME_RESERVED]

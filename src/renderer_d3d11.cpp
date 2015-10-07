@@ -1961,6 +1961,11 @@ BX_PRAGMA_DIAGNOSTIC_POP();
 			DX_RELEASE(backBuffer, 0);
 		}
 
+		void readBackTexture(TextureHandle _handle) BX_OVERRIDE
+		{
+			g_callback->readBack(_handle, 0, 0, 0, NULL, 0, false);
+		}
+
 		void updateViewName(uint8_t _id, const char* _name) BX_OVERRIDE
 		{
 			if (BX_ENABLED(BGFX_CONFIG_DEBUG_PIX) )

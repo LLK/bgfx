@@ -135,6 +135,11 @@ namespace bgfx
 		virtual void captureFrame(const void* /*_data*/, uint32_t /*_size*/) BX_OVERRIDE
 		{
 		}
+
+		virtual void readBack(TextureHandle /*_handle*/, uint32_t /*_width*/, uint32_t /*_height*/, uint32_t /*_pitch*/, const void* /*_data*/, uint32_t /*_size*/, bool /*_yflip*/) BX_OVERRIDE
+		{
+			BX_TRACE("Warning: using readback without callback (a.k.a. pointless).");
+		}
 	};
 
 #ifndef BGFX_CONFIG_MEMORY_TRACKING
@@ -2339,6 +2344,15 @@ namespace bgfx
 				}
 				break;
 
+			case CommandBuffer::ReadBackTexture:
+				{
+					TextureHandle handle;
+					_cmdbuf.read(handle);
+
+					m_renderCtx->readBackTexture(handle);
+				}
+				break;
+
 			default:
 				BX_CHECK(false, "Invalid command: %d", command);
 				break;
@@ -3603,6 +3617,12 @@ namespace bgfx
 		BGFX_CHECK_MAIN_THREAD();
 		s_ctx->saveScreenShot(_filePath);
 	}
+
+	void readBackTexture(TextureHandle _handle)
+	{
+		BGFX_CHECK_MAIN_THREAD();
+		s_ctx->readBackTexture(_handle);
+	}
 } // namespace bgfx
 
 #include <bgfx/c99/bgfx.h>
@@ -3714,6 +3734,12 @@ namespace bgfx
 		virtual void captureFrame(const void* _data, uint32_t _size) BX_OVERRIDE
 		{
 			m_interface->vtbl->capture_frame(m_interface, _data, _size);
+		}
+
+		virtual void readBack(TextureHandle _handle, uint32_t _width, uint32_t _height, uint32_t _pitch, const void* _data, uint32_t _size, bool _yflip) BX_OVERRIDE
+		{
+			union { bgfx_texture_handle_t c; bgfx::TextureHandle cpp; } handle = { _handle.idx };
+			m_interface->vtbl->read_back(m_interface, handle.c, _width, _height, _pitch, _data, _size, _yflip);
 		}
 
 		bgfx_callback_interface_t* m_interface;
@@ -4520,6 +4546,12 @@ BGFX_C_API void bgfx_blit_frame_buffer(uint8_t _id, bgfx_texture_handle_t _dst, 
 BGFX_C_API void bgfx_save_screen_shot(const char* _filePath)
 {
 	bgfx::saveScreenShot(_filePath);
+}
+
+BGFX_C_API void bgfx_read_back_texture(bgfx_texture_handle_t _handle)
+{
+	union { bgfx_texture_handle_t c; bgfx::TextureHandle cpp; } handle = { _handle };
+	bgfx::readBackTexture(handle.cpp);
 }
 
 BGFX_C_API bgfx_render_frame_t bgfx_render_frame()

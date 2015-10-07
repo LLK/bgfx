@@ -626,6 +626,7 @@ namespace bgfx
 			DestroyUniform,
 			ReadTexture,
 			SaveScreenShot,
+			ReadBackTexture,
 		};
 
 		void write(const void* _data, uint32_t _size)
@@ -2065,6 +2066,7 @@ namespace bgfx
 		virtual void createUniform(UniformHandle _handle, UniformType::Enum _type, uint16_t _num, const char* _name) = 0;
 		virtual void destroyUniform(UniformHandle _handle) = 0;
 		virtual void saveScreenShot(const char* _filePath) = 0;
+		virtual void readBackTexture(TextureHandle _handle) = 0;
 		virtual void updateViewName(uint8_t _id, const char* _name) = 0;
 		virtual void updateUniform(uint16_t _loc, const void* _data, uint32_t _size) = 0;
 		virtual void setMarker(const char* _marker, uint32_t _size) = 0;
@@ -3428,6 +3430,12 @@ namespace bgfx
 			uint16_t len = (uint16_t)strlen(_filePath)+1;
 			cmdbuf.write(len);
 			cmdbuf.write(_filePath, len);
+		}
+
+		BGFX_API_FUNC(void readBackTexture(TextureHandle _handle))
+		{
+			CommandBuffer& cmdbuf = getCommandBuffer(CommandBuffer::ReadBackTexture);
+			cmdbuf.write(_handle);
 		}
 
 		BGFX_API_FUNC(void setPaletteColor(uint8_t _index, const float _rgba[4]) )

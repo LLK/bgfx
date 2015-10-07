@@ -1520,6 +1520,68 @@ namespace bgfx { namespace d3d12
 			DX_RELEASE(readback, 0);
 		}
 
+		void readBackTexture(TextureHandle _handle) BX_OVERRIDE
+		{
+			TextureD3D12& texture = m_textures[_handle.idx];
+			ID3D12Resource* resource = texture.m_ptr;
+			D3D12_RESOURCE_DESC desc = resource->GetDesc();
+
+			const uint32_t width = (uint32_t)desc.Width;
+			const uint32_t height = (uint32_t)desc.Height;
+
+			D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
+			uint32_t numRows;
+			uint64_t total;
+			uint64_t pitch;
+			m_device->GetCopyableFootprints(&desc
+				, 0
+				, 1
+				, 0
+				, &layout
+				, &numRows
+				, &pitch
+				, &total
+				);
+
+			ID3D12Resource* readback = createCommittedResource(m_device, HeapProperty::ReadBack, total);
+
+			D3D12_BOX box;
+			box.left = 0;
+			box.top = 0;
+			box.right = width;
+			box.bottom = height;
+			box.front = 0;
+			box.back = 1;
+
+			setResourceBarrier(m_commandList, resource, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_COPY_SOURCE);
+			D3D12_TEXTURE_COPY_LOCATION dst = { readback,   D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,{ layout } };
+			D3D12_TEXTURE_COPY_LOCATION src = { resource, D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,{} };
+			m_commandList->CopyTextureRegion(&dst, 0, 0, 0, &src, &box);
+			setResourceBarrier(m_commandList, resource, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PRESENT);
+			finish();
+			m_commandList = m_cmd.alloc();
+
+			void* data;
+			readback->Map(0, NULL, (void**)&data);
+			imageSwizzleBgra8(width
+				, height
+				, (uint32_t)pitch
+				, data
+				, data
+				);
+			g_callback->readBack(_handle
+				, width
+				, height
+				, (uint32_t)layout.Footprint.RowPitch // TODO: figure out pitch inconsistency
+				, data
+				, (uint32_t)total
+				, false
+				);
+			readback->Unmap(0, NULL);
+
+			DX_RELEASE(readback, 0);
+		}
+
 		void updateViewName(uint8_t /*_id*/, const char* /*_name*/) BX_OVERRIDE
 		{
 		}

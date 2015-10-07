@@ -1156,6 +1156,11 @@ namespace bgfx { namespace d3d9
 #endif // BX_PLATFORM_WINDOWS
 		}
 
+		void readBackTexture(TextureHandle _handle) BX_OVERRIDE
+		{
+			g_callback->readBack(_handle, 0, 0, 0, NULL, 0, false);
+		}
+
 		void updateViewName(uint8_t _id, const char* _name) BX_OVERRIDE
 		{
 			if (BX_ENABLED(BGFX_CONFIG_DEBUG_PIX) )

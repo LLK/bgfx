@@ -435,6 +435,7 @@ typedef struct bgfx_callback_vtbl
     void (*capture_begin)(bgfx_callback_interface_t* _this, uint32_t _width, uint32_t _height, uint32_t _pitch, bgfx_texture_format_t _format, bool _yflip);
     void (*capture_end)(bgfx_callback_interface_t* _this);
     void (*capture_frame)(bgfx_callback_interface_t* _this, const void* _data, uint32_t _size);
+	void (*read_back)(bgfx_callback_interface_t* _this, bgfx_texture_handle_t _handle, uint32_t _width, uint32_t _height, uint32_t _pitch, const void* _data, uint32_t _size, bool _yflip);
 
 } bgfx_callback_vtbl_t;
 
@@ -838,5 +839,8 @@ BGFX_C_API void bgfx_blit_frame_buffer(uint8_t _id, bgfx_texture_handle_t _dst, 
 
 /**/
 BGFX_C_API void bgfx_save_screen_shot(const char* _filePath);
+
+/**/
+BGFX_C_API void bgfx_read_back_view(uint8_t _id);
 
 #endif // BGFX_C99_H_HEADER_GUARD
