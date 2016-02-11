@@ -1520,9 +1520,14 @@ namespace bgfx { namespace d3d12
 			DX_RELEASE(readback, 0);
 		}
 
-		void readBackTexture(TextureHandle _handle) BX_OVERRIDE
+		void readBack(FrameBufferHandle _handle) BX_OVERRIDE
 		{
-			TextureD3D12& texture = m_textures[_handle.idx];
+			FrameBufferD3D12& framebuffer = m_frameBuffers[_handle.idx];
+			
+			// TODO: allow access to others?
+			TextureHandle textureHandle = framebuffer.m_texture[0];
+
+			TextureD3D12& texture = m_textures[textureHandle.idx];
 			ID3D12Resource* resource = texture.m_ptr;
 			D3D12_RESOURCE_DESC desc = resource->GetDesc();
 

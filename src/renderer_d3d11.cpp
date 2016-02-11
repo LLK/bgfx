@@ -1961,7 +1961,7 @@ BX_PRAGMA_DIAGNOSTIC_POP();
 			DX_RELEASE(backBuffer, 0);
 		}
 
-		void readBackTexture(TextureHandle _handle) BX_OVERRIDE
+		void readBack(FrameBufferHandle _handle) BX_OVERRIDE
 		{
 			g_callback->readBack(_handle, 0, 0, 0, NULL, 0, false);
 		}

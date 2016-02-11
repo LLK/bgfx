@@ -2340,9 +2340,41 @@ namespace bgfx { namespace gl
 			BX_FREE(g_allocator, data);
 		}
 
-		void readBackTexture(TextureHandle _handle) BX_OVERRIDE
+		void readBack(FrameBufferHandle _handle) BX_OVERRIDE
 		{
-			g_callback->readBack(_handle, 0, 0, 0, NULL, 0, false);
+			const FrameBufferGL& framebuffer = m_frameBuffers[_handle.idx];
+
+			const uint32_t width = framebuffer.m_width;
+			const uint32_t height = framebuffer.m_height;
+
+			const uint32_t length = width * height * 4;
+			uint8_t* const data = (uint8_t*)BX_ALLOC(g_allocator, length);
+
+			setFrameBuffer(_handle, height);
+			GL_CHECK(glViewport(0, 0, width, height));
+
+#		if !BX_PLATFORM_EMSCRIPTEN
+			// WebGL doesn't support glReadBuffer but it's necessary elsewhere
+			GL_CHECK(glReadBuffer(GL_COLOR_ATTACHMENT0));
+#		endif
+
+			GL_CHECK(glReadPixels(0
+				, 0
+				, width
+				, height
+				, m_readPixelsFmt
+				, GL_UNSIGNED_BYTE
+				, data
+				));
+
+			if (GL_RGBA == m_readPixelsFmt)
+			{
+				imageSwizzleBgra8(width, height, width * 4, data, data);
+			}
+
+			g_callback->readBack(_handle, width, height, width * 4, data, length, true);
+
+			BX_FREE(g_allocator, data);
 		}
 
 		void updateViewName(uint8_t _id, const char* _name) BX_OVERRIDE

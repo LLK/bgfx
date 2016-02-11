@@ -136,7 +136,7 @@ namespace bgfx
 		{
 		}
 
-		virtual void readBack(TextureHandle /*_handle*/, uint32_t /*_width*/, uint32_t /*_height*/, uint32_t /*_pitch*/, const void* /*_data*/, uint32_t /*_size*/, bool /*_yflip*/) BX_OVERRIDE
+		virtual void readBack(FrameBufferHandle /*_handle*/, uint32_t /*_width*/, uint32_t /*_height*/, uint32_t /*_pitch*/, const void* /*_data*/, uint32_t /*_size*/, bool /*_yflip*/) BX_OVERRIDE
 		{
 			BX_TRACE("Warning: using readback without callback (a.k.a. pointless).");
 		}
@@ -2344,12 +2344,12 @@ namespace bgfx
 				}
 				break;
 
-			case CommandBuffer::ReadBackTexture:
+			case CommandBuffer::ReadBack:
 				{
-					TextureHandle handle;
+					FrameBufferHandle handle;
 					_cmdbuf.read(handle);
 
-					m_renderCtx->readBackTexture(handle);
+					m_renderCtx->readBack(handle);
 				}
 				break;
 
@@ -3618,10 +3618,10 @@ namespace bgfx
 		s_ctx->saveScreenShot(_filePath);
 	}
 
-	void readBackTexture(TextureHandle _handle)
+	void readBack(FrameBufferHandle _handle)
 	{
 		BGFX_CHECK_MAIN_THREAD();
-		s_ctx->readBackTexture(_handle);
+		s_ctx->readBack(_handle);
 	}
 } // namespace bgfx
 
@@ -3736,9 +3736,9 @@ namespace bgfx
 			m_interface->vtbl->capture_frame(m_interface, _data, _size);
 		}
 
-		virtual void readBack(TextureHandle _handle, uint32_t _width, uint32_t _height, uint32_t _pitch, const void* _data, uint32_t _size, bool _yflip) BX_OVERRIDE
+		virtual void readBack(FrameBufferHandle _handle, uint32_t _width, uint32_t _height, uint32_t _pitch, const void* _data, uint32_t _size, bool _yflip) BX_OVERRIDE
 		{
-			union { bgfx_texture_handle_t c; bgfx::TextureHandle cpp; } handle = { _handle.idx };
+			union { bgfx_frame_buffer_handle_t c; bgfx::FrameBufferHandle cpp; } handle = { _handle.idx };
 			m_interface->vtbl->read_back(m_interface, handle.c, _width, _height, _pitch, _data, _size, _yflip);
 		}
 
@@ -4548,10 +4548,10 @@ BGFX_C_API void bgfx_save_screen_shot(const char* _filePath)
 	bgfx::saveScreenShot(_filePath);
 }
 
-BGFX_C_API void bgfx_read_back_texture(bgfx_texture_handle_t _handle)
+BGFX_C_API void bgfx_read_back(bgfx_frame_buffer_handle_t _handle)
 {
-	union { bgfx_texture_handle_t c; bgfx::TextureHandle cpp; } handle = { _handle };
-	bgfx::readBackTexture(handle.cpp);
+	union { bgfx_frame_buffer_handle_t c; bgfx::FrameBufferHandle cpp; } handle = { _handle };
+	bgfx::readBack(handle.cpp);
 }
 
 BGFX_C_API bgfx_render_frame_t bgfx_render_frame()

@@ -461,7 +461,7 @@ namespace bgfx
 		/// @param[in] _handle Texture that was read.
 		/// @param[in] _data Image data.
 		/// @param[in] _size Image size.
-		virtual void readBack(TextureHandle _handle, uint32_t _width, uint32_t _height, uint32_t _pitch, const void* _data, uint32_t _size, bool _yflip) = 0;
+		virtual void readBack(FrameBufferHandle _handle, uint32_t _width, uint32_t _height, uint32_t _pitch, const void* _data, uint32_t _size, bool _yflip) = 0;
 	};
 
 	inline CallbackI::~CallbackI()
@@ -2749,7 +2749,7 @@ namespace bgfx
 	///
 	/// @attention C99 equivalent is `bgfx_read_back_texture`.
 	///
-	void readBackTexture(TextureHandle _handle);
+	void readBack(FrameBufferHandle _handle);
 
 } // namespace bgfx
 
