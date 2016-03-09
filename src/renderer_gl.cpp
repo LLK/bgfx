@@ -2374,6 +2374,9 @@ namespace bgfx { namespace gl
 
 			g_callback->readBack(_handle, width, height, width * 4, data, length, true);
 
+			// TODO: this call to glBindFramebuffer shouldn't be here
+			GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0) );
+
 			BX_FREE(g_allocator, data);
 		}
 
