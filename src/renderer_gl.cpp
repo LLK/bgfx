@@ -2353,8 +2353,8 @@ namespace bgfx { namespace gl
 			setFrameBuffer(_handle, height);
 			GL_CHECK(glViewport(0, 0, width, height));
 
-#		if !BX_PLATFORM_EMSCRIPTEN
-			// WebGL doesn't support glReadBuffer but it's necessary elsewhere
+#		if !BGFX_CONFIG_RENDERER_OPENGLES
+			// OpenGL ES doesn't support glReadBuffer but it's necessary elsewhere
 			GL_CHECK(glReadBuffer(GL_COLOR_ATTACHMENT0));
 #		endif
 
