@@ -773,6 +773,32 @@ namespace bgfx { namespace mtl
 			BX_FREE(g_allocator, data);
 		}
 
+		void readBack(FrameBufferHandle _handle) BX_OVERRIDE
+		{
+			const FrameBufferMtl &framebuffer = m_frameBuffers[_handle.idx];
+			const TextureHandle handle = framebuffer.m_colorHandle[0];
+
+			if (isValid(handle))
+			{
+				Texture &texture = m_textures[handle.idx].m_ptr;
+
+				const uint32_t width = framebuffer.m_width;
+				const uint32_t height = framebuffer.m_height;
+				const uint32_t stride = 4 * width;
+				const uint32_t length = stride * height;
+
+				uint8_t *const data = (uint8_t *) BX_ALLOC(g_allocator, length);
+
+				const MTLRegion region = {{0, 0, 0}, {width, height, 1}};
+
+				texture.getBytes(data, stride, 0, region, 0, 0);
+
+				g_callback->readBack(_handle, width, height, stride, data, length, true);
+
+				BX_FREE(g_allocator, data);
+			}
+		}
+
 		void updateViewName(uint8_t _id, const char* _name) BX_OVERRIDE
 		{
 			if (BX_ENABLED(BGFX_CONFIG_DEBUG_PIX) )
